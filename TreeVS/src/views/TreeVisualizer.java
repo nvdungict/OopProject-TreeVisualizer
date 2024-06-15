@@ -32,12 +32,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import tree.*;
 import javafx.scene.shape.Circle;
@@ -81,11 +84,18 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+
+import java.awt.Label;
 import java.io.PrintStream;
 
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import tree.*;
+import javafx.scene.layout.VBox;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.geometry.Pos;
 
 public class TreeVisualizer {
     private Pane treePane;
@@ -649,6 +659,10 @@ public class TreeVisualizer {
         searchTypeDialog.setContentText("Choose search method:");
 
         final TreeNode[] foundNode = {null};
+        
+     // Set dialog as non-modal
+        searchTypeDialog.initOwner(primaryStage); // Set the owner of the dialog to the main application window
+        searchTypeDialog.initModality(Modality.NONE); // Make the dialog non-modal
 
         searchTypeDialog.showAndWait().ifPresent(selected -> {
             highlightedNodes.clear();
@@ -717,6 +731,10 @@ public class TreeVisualizer {
         dialog.setTitle("Search Node");
         dialog.setHeaderText("Search for a node");
         dialog.setContentText("Please enter a value:");
+        
+     // Set dialog as non-modal
+        dialog.initOwner(primaryStage); // Set the owner of the dialog to the main application window
+        dialog.initModality(Modality.NONE); // Make the dialog non-modal
 
         dialog.showAndWait().ifPresent(value -> {
             try {
@@ -858,13 +876,17 @@ public class TreeVisualizer {
 
     
     private void traverseNode() {
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("BFS", "DFS","IDDFS");
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("BFS", "DFS", "IDDFS");
         dialog.setTitle("Traverse Nodes");
         dialog.setHeaderText("Select traversal method");
         dialog.setContentText("Choose traversal method:");
 
+        // Set dialog as non-modal
+        dialog.initOwner(primaryStage); // Set the owner of the dialog to the main application window
+        dialog.initModality(Modality.NONE); // Make the dialog non-modal
+
         dialog.showAndWait().ifPresent(selected -> {
-        	targetNode = null;
+            targetNode = null;
             highlightedNodes.clear();
             permanentlyHighlightedNodes.clear();
             highlightedEdges.clear(); // Clear highlighted edges
@@ -872,7 +894,7 @@ public class TreeVisualizer {
                 bfsTraversal(tree.getRoot());
             } else if (selected.equals("DFS")) {
                 dfsTraversal(tree.getRoot());
-            }else if (selected.equals("IDDFS")) {
+            } else if (selected.equals("IDDFS")) {
                 iddfsTraversal(tree.getRoot());
             }
             animateTraversal();
@@ -961,9 +983,15 @@ public class TreeVisualizer {
     }
     
     private void drawTree() {
-    	// Clear the existing elements
+        // Clear the existing elements
         treePane.getChildren().clear();
         visitedNodes = new HashSet<>(); // Initialize the visitedNodes set
+
+        // Clear the notification pane
+        if (notificationPane != null) {
+            notificationPane.getChildren().clear();
+        }
+
         TreeNode root = tree.getRoot();
         if (root != null) {
             if (tree instanceof BinaryTree || tree instanceof BalancedBinaryTree) {
@@ -972,9 +1000,8 @@ public class TreeVisualizer {
                 drawGenericTree(root, treePane.getWidth() / 2, 30, treePane.getWidth() / 4, 50);
             }
         }
-        
-        
-     // Create rectangle box for notifications
+
+        // Create rectangle box for notifications
         if (notificationPane != null) {
             // Update the existing notificationPane with the latest content
             if (notificationText != null) {
@@ -990,8 +1017,7 @@ public class TreeVisualizer {
                 // Add notification text to the box
                 notificationText.setFill(Color.BLACK);
 
-                // Clear existing content and add new content
-                notificationPane.getChildren().clear();
+                // Add new content
                 notificationPane.getChildren().addAll(notificationBox, notificationText);
 
                 // Add notificationPane to treePane if it's not already added
@@ -1001,6 +1027,7 @@ public class TreeVisualizer {
             }
         }
     }
+
 
     private void drawTreeRecursive(TreeNode node, double x, double y, double xOffset, double yOffset) {
         if (node == null) return;
